@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mobile-bff-deployment
+  namespace: bookstore-ns
+spec:
+  selector:
+    matchLabels:
+      app: mobile-bff
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: mobile-bff
+    spec:
+      containers:
+        - name: mobile-bff
+          image: kevin0988/mobile_bff:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: BOOKS
+              value: http://10.100.208.220
+            - name: CUSTOMERS
+              value: http://10.100.134.48
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                      - mobile-bff
